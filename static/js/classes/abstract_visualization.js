@@ -54,12 +54,10 @@ var AbstractVisualization = Fiber.extend(function() {
             var min = Number(num > 0),
                 max = num;
 
-            guiIteration.__min = min;
-            guiIteration.__max = max;
-
-            if (guiIteration.getValue() === 0) {
-                guiIteration.setValue(min);
-            }
+            // remove the slider, then instantiate it again:
+            this.guiIteration.remove();
+            this.guiIteration = this.gui.add(this, 'iteration', 0, max).step(1);
+            this.guiIteration.setValue(num);
         },
 
         /* Private */
@@ -135,7 +133,6 @@ var AbstractVisualization = Fiber.extend(function() {
 
             domElement.addClass("controls");
             this.container.append(domElement);
-
             this.guiIteration = gui.add(this, 'iteration', 0, 0).step(1);
 
             var outputDrawing = this.outputDrawing,
