@@ -311,6 +311,9 @@ var AbstractVisualization = Fiber.extend(function() {
             inputDrawing.setLayerDimensions(inputDimensions, this.reshape);
             outputDrawing.setLayerDimensions(outputDimensions, this.reshape);
 
+            inputDimensions = snapshot.getInputLayer().getDimensions();
+            outputDimensions = snapshot.getOutputLayer().getDimensions();
+
             if (lastSnapshot) {
                 var lastInputDimensions = lastSnapshot.getInputLayer().getDimensions(),
                     lastOutputDimensions = lastSnapshot.getOutputLayer().getDimensions();
