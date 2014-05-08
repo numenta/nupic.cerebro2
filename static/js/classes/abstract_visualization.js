@@ -34,6 +34,8 @@ var AbstractVisualization = Fiber.extend(function() {
             this._initGUI();
 
             this.historyUpdated();
+
+            this.setControls();
         },
 
         /* To Override */
@@ -41,6 +43,7 @@ var AbstractVisualization = Fiber.extend(function() {
         getInputDrawing: function() {return null;},
         getOutputDrawing: function() {return null;},
         initCamera: function(width, height) {return null;},
+        setControls: function() {return null;}, // optional override
 
         // Events
         iterationChanged: function() {},

@@ -24,6 +24,10 @@ var TwoDVisualization = AbstractVisualization.extend(function(base) {
 
         getOutputDrawing: function(scene) {
             return new TwoDDrawing(scene, 0, 200);
+        },
+
+        setControls: function() {
+            this.controls.noRotate = true;
         }
     };
 });
