@@ -37,6 +37,10 @@ var TwoDVisualization = AbstractVisualization.extend(function(base) {
 
             inputObject3D.position.y = -(total / 4 + padding);
             outputObject3D.position.y = (total / 4 + padding);
+        },
+
+        setControls: function() {
+            this.controls.noRotate = true;
         }
     };
 });
