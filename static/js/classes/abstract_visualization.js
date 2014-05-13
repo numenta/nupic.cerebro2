@@ -92,14 +92,10 @@ var AbstractVisualization = Fiber.extend(function() {
         },
 
         play: function() {
-            if (!this.playing) {
-                this._enableController('speed');
-                this._enableController('pause');
-                this._player();
+            if (!this.playing && this.buttonsState["play"]) {
                 this.playing = true;
-                if (this.buttonsState["play"]) {
-                    this._changeControllerText("play", "pause");
-                }
+                this._changeControllerText("play", "pause");
+                this._player();
             } else {
                 this.pause();
             }
