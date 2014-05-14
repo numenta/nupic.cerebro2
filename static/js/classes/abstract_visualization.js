@@ -19,6 +19,18 @@ var AbstractVisualization = Fiber.extend(function() {
             this.timer = null;
             this.playing = false;
 
+            // buttons enabled
+            this.buttonsState = {
+                "iteration" : true,
+                "play" : true,
+                "speed" : true,
+                "next" : true,
+                "prev" : true,
+                "reshape" : true
+            };
+
+            this.previousButtonsState = null;
+
             this.speed = 500;
             this.maxSpeed = 1000;
 
@@ -32,6 +44,7 @@ var AbstractVisualization = Fiber.extend(function() {
             this._initControls();
             this._initStats();
             this._initGUI();
+            this._initButtonState();
 
             this.historyUpdated();
         },
@@ -79,12 +92,10 @@ var AbstractVisualization = Fiber.extend(function() {
         },
 
         play: function() {
-            if (!this.playing) {
-                this._enableController('speed');
-                this._enableController('pause');
-                this._player();
+            if (!this.playing && this.buttonsState["play"]) {
                 this.playing = true;
                 this._changeControllerText("play", "pause");
+                this._player();
             } else {
                 this.pause();
             }
@@ -93,21 +104,22 @@ var AbstractVisualization = Fiber.extend(function() {
         pause: function() {
             clearTimeout(this.timer);
             this.playing = false;
-            this._changeControllerText("play", "play");
-            this._disableController('speed');
+            if (this.buttonsState["play"]) {
+                this._changeControllerText("play", "play");
+            }
         },
 
         /* Private */
 
         _player: function() {
-            this.timer = _.delay(function(_this){
-                _this.iteration++;
-                if(_this.iteration < _this.guiIteration.__max) {
+            if (this.iteration < this.guiIteration.__max) {
+                this.timer = _.delay(function(_this){
+                    _this.iteration++;
                     _this._player();
-                } else {
-                    _this.pause();
-                }
-            }, this._calculateSpeed(),this);
+                }, this._calculateSpeed(), this);
+            } else {
+                this.pause();
+            }
         },
 
         _changeControllerText: function(name, label) {
@@ -130,22 +142,20 @@ var AbstractVisualization = Fiber.extend(function() {
                     return controller;
                 }
             }
-
             return null;
         },
 
         _disableController: function(controllerName) {
             var controller = this._findController(controllerName);
-            if (!controller) return;
-
-            if($(controller.__li).children(".disabled").length > 0) return;
+            if (!controller || $(controller.__li).children(".disabled").length > 0) {
+                return;
+            }
             $(controller.__li).append("<div class='disabled'></div>");
         },
 
         _enableController: function(controllerName) {
             var controller = this._findController(controllerName);
             if (!controller) return;
-
             $(controller.__li).children().remove(".disabled");
         },
 
@@ -264,9 +274,6 @@ var AbstractVisualization = Fiber.extend(function() {
             viewFolder.add(this.outputDrawing, 'showDistalSynapses').onChange(updateDistalSynapses);
 
             this.gui = gui;
-
-            // disable some controllers
-            this._disableController('speed');
         },
 
         _update: function() {
@@ -274,6 +281,7 @@ var AbstractVisualization = Fiber.extend(function() {
                 this._iterationUpdated();
                 this.iterationChanged(); // fire event
                 this.lastIteration = this.iteration;
+                this._setButtonState();
             }
         },
 
@@ -325,6 +333,45 @@ var AbstractVisualization = Fiber.extend(function() {
             if (inputDimensionsChanged || outputDimensionsChanged) {
                 this._redraw();
             }
+        },
+
+        _initButtonState: function() {
+            this.previousButtonsState = _.clone(this.buttonsState);
+        },
+
+        _setButtonState: function() {
+            if (this.guiIteration) {
+                // if counter is at max:
+                if (this.iteration >= this.guiIteration.__max) {
+                    this.buttonsState["play"] = false;
+                    this.buttonsState["next"] = false;
+                    this.buttonsState["prev"] = true;
+                // if counter is at min:
+                } else if (this.iteration <= this.guiIteration.__min) {
+                    this.buttonsState["play"] = true;
+                    this.buttonsState["next"] = true;
+                    this.buttonsState["prev"] = false;
+                } else {
+                    this.buttonsState["play"] = true;
+                    this.buttonsState["next"] = true;
+                    this.buttonsState["prev"] = true;  
+                }
+
+                this._updateButtons();
+           }
+        },
+
+        _updateButtons: function() {
+            for (var button in this.buttonsState) {
+                if (this.buttonsState[button] != this.previousButtonsState[button]) {
+                    if (this.buttonsState[button]) {
+                        this._enableController(button);
+                    } else {
+                        this._disableController(button);
+                    }
+                }
+            }
+            this.previousButtonsState = _.clone(this.buttonsState);
         },
 
         _reshapeUpdated: function() {
