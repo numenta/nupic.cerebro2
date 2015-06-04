@@ -354,10 +354,7 @@ Cerebro2.AbstractVisualization = Fiber.extend(function() {
             }
             
             this.snapshot = snapshot;
-
             this.readyToLoadData();
-            this.reset();
-
             this.iterationChanged(snapshot, lastSnapshot); // fire public event
         },
 
